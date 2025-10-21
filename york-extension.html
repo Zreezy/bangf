@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EAUT Map – Extension</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+:root{ --bg:#0b1220;--panel:#0e1627;--line:#1e293b;--ink:#e5eefc;--accent:#2563eb; }
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,Segoe UI,Roboto}
+
+/* header */
+.topbar{height:52px;display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:1px solid var(--line);background:#0b1220}
+.brand{font-weight:700}.brand small{opacity:.7;color:#93c5fd;font-size:13px;margin-left:4px}
+.spacer{flex:1}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:7px 12px;cursor:pointer}
+
+/* layout */
+.wrap{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 52px)}
+aside{background:var(--panel);border-right:1px solid var(--line);padding:12px;overflow:auto}
+#map{width:100%;height:100%}
+
+/* sections */
+.section{margin-bottom:14px}
+.section h4{margin:4px 0 6px;font-size:13px;opacity:.85}
+.search{display:flex;gap:6px}
+.search input{flex:1;background:#0b1220;border:1px solid var(--line);border-radius:8px;color:#dbeafe;padding:7px 10px}
+.linklist a{display:block;padding:7px 8px;border-radius:8px;text-decoration:none;color:var(--ink)}
+.linklist a:hover{background:#1f2937cc}
+.muted{opacity:.7;font-size:13px}
+
+/* highlight item khi click polygon */
+#listBuildings a.active{ background:#2563eb33; border:1px solid #2563eb; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">EAUT Map <small>Bản mở rộng</small></div>
+  <div class="spacer"></div>
+  <a class="btn" href="./index.html">← Quay về Campus</a>
+</div>
+
+<div class="wrap">
+  <aside>
+    <div class="section">
+      <div class="search">
+        <input id="q" placeholder="Tìm tòa / tiện ích…">
+        <button class="btn" id="btnSearch">Tìm</button>
+      </div>
+      <div class="muted" style="margin-top:4px">Ví dụ: thư viện, căng tin, #10,…</div>
+    </div>
+
+    <div class="section">
+      <h4>Tòa nhà</h4>
+      <div class="linklist" id="listBuildings"></div>
+    </div>
+
+    <div class="section">
+      <h4>Tiện ích</h4>
+      <div class="linklist" id="listUtil">
+        <a href="#" data-jump="canteen">Khu căng tin</a>
+        <a href="#" data-jump="parking">Bãi gửi xe</a>
+        <a href="#" data-jump="sport">Khu thể thao</a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h4>Điều hướng</h4>
+      <div class="linklist">
+        <a href="./index.html">Trở về bản đồ 2.5D</a>
+        <a href="#" onclick="location.reload()">Tải lại trang</a>
+      </div>
+    </div>
+  </aside>
+
+  <div id="map"></div>
+</div>
+
+<script>
+// ====== MAP SETUP ======
+const EAUT_CENTER = [21.0399,105.7507];
+const map = L.map('map',{center:EAUT_CENTER,zoom:17});
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+
+// ====== POLYGON GEOJSON (INLINE) ======
+const POLY = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              105.74171075992672,
+              21.039925798418523
+            ],
+            [
+              105.74203237723566,
+              21.039803962536865
+            ],
+            [
+              105.7421307542952,
+              21.040001725075413
+            ],
+            [
+              105.7418110288528,
+              21.04012709226396
+            ],
+            [
+              105.74171075992672,
+              21.039924032681796
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              105.74228588735002,
+              21.039996427869
+            ],
+            [
+              105.742185618424,
+              21.039791602369306
+            ],
+            [
+              105.74249966826676,
+              21.039652108980505
+            ],
+            [
+              105.7425753429277,
+              21.039888717943
+            ],
+            [
+              105.7422707524176,
+              21.03999995934072
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              105.74212329806375,
+              21.040871473996404
+            ],
+            [
+              105.74184454653141,
+              21.040251925697177
+            ],
+            [
+              105.74264300431145,
+              21.039958686635245
+            ],
+            [
+              105.74291703124146,
+              21.04056280256806
+            ],
+            [
+              105.74212093576261,
+              21.04087588358368
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              105.74231933098105,
+              21.0415768646492
+            ],
+            [
+              105.74215414695402,
+              21.041202452349324
+            ],
+            [
+              105.74226623611463,
+              21.041141885565153
+            ],
+            [
+              105.74243436985643,
+              21.041516298017314
+            ],
+            [
+              105.74231933098105,
+              21.041579617677343
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              105.74232523041064,
+              21.041166662888415
+            ],
+            [
+              105.74259070473897,
+              21.04106755356895
+            ],
+            [
+              105.74271754247354,
+              21.041367634362402
+            ],
+            [
+              105.7424756658636,
+              21.041469496512363
+            ],
+            [
+              105.74232818012541,
+              21.041163909852614
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              105.74229278370672,
+              21.041034516939064
+            ],
+            [
+              105.74221019169232,
+              21.04086658151516
+            ],
+            [
+              105.74243731972825,
+              21.040772978081407
+            ],
+            [
+              105.74250811288346,
+              21.040943666650733
+            ],
+            [
+              105.74228983399195,
+              21.041034516939064
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              105.74171480885752,
+              21.040247382806555
+            ],
+            [
+              105.7416525626009,
+              21.040045574810193
+            ],
+            [
+              105.74172791333268,
+              21.04003334401358
+            ],
+            [
+              105.74182619689361,
+              21.04020151737619
+            ],
+            [
+              105.7417180849763,
+              21.040244325111672
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              105.74181636798232,
+              21.041366494826647
+            ],
+            [
+              105.74160997250402,
+              21.04083751665503
+            ],
+            [
+              105.74100061442141,
+              21.041051554292437
+            ],
+            [
+              105.7412332188498,
+              21.041595820040698
+            ],
+            [
+              105.74181636798232,
+              21.041387898528498
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              105.74250829569706,
+              21.04107571800398
+            ],
+            [
+              105.74258878908176,
+              21.04104254532642
+            ],
+            [
+              105.74256160949608,
+              21.040997664631632
+            ],
+            [
+              105.74249679664177,
+              21.041039618322245
+            ],
+            [
+              105.74250934106544,
+              21.04107181533358
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    }
+  ]
+};
+
+// ====== chuẩn hóa tên: Building 1..n nếu thiếu ======
+let autoIdx = 1;
+POLY.features.forEach(f=>{
+  if(!f.properties) f.properties = {};
+  if(!f.properties.name) f.properties.name = `Building ${autoIdx++}`;
+});
+
+// ====== Render POLYGON lên map ======
+const layerById = new Map();
+let uid = 0;
+
+const polys = L.geoJSON(POLY,{
+  style:{
+    color:"#2563eb", weight:2, fillColor:"#2563eb", fillOpacity:0.25
+  },
+  onEachFeature:(feat,layer)=>{
+    feat.properties.__uid = ++uid;
+    layerById.set(uid, layer);
+
+    const name = feat.properties.name;
+    layer.bindPopup(name);
+
+    // hover effect
+    layer.on("mouseover",()=> layer.setStyle({weight:4,fillOpacity:.40}));
+    layer.on("mouseout", ()=> layer.setStyle({weight:2,fillOpacity:.25}));
+
+    // click → chỉ highlight item sidebar
+    layer.on("click", ()=>{
+      document.querySelectorAll("#listBuildings a").forEach(a=>a.classList.remove("active"));
+      const item = Array.from(document.querySelectorAll("#listBuildings a"))
+        .find(a => a.textContent.trim() === name);
+      item?.classList.add("active");
+    });
+  }
+}).addTo(map);
+
+// Fit khung nhìn để thấy toàn bộ polygon
+map.fitBounds(polys.getBounds(), { maxZoom: 18, padding:[20,20] });
+
+// ====== Sinh danh sách tòa bên sidebar theo POLY ======
+const lb = document.getElementById('listBuildings');
+lb.innerHTML = '';
+POLY.features.forEach(f=>{
+  const name = f.properties.name;
+  const a = document.createElement('a');
+  a.href = "#";
+  a.textContent = name;
+  a.onclick = e=>{
+    e.preventDefault();
+    const lyr = layerById.get(f.properties.__uid);
+    if(lyr){
+      map.fitBounds(lyr.getBounds(), { maxZoom: 19, padding:[20,20] });
+      lyr.openPopup();
+      document.querySelectorAll('#listBuildings a').forEach(x=>x.classList.remove('active'));
+      a.classList.add('active');
+    }
+  };
+  lb.appendChild(a);
+});
+
+// ====== Search theo tên (match chuỗi đơn giản) ======
+document.getElementById('btnSearch').onclick=()=>{
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  if(!q) return;
+  const hit = POLY.features.find(f=> (f.properties.name||'').toLowerCase().includes(q));
+  if(hit){
+    const lyr = layerById.get(hit.properties.__uid);
+    map.fitBounds(lyr.getBounds(), { maxZoom: 19, padding:[20,20] });
+    lyr.openPopup();
+    const item = Array.from(document.querySelectorAll('#listBuildings a')).find(a=>a.textContent.trim()===hit.properties.name);
+    if(item){ document.querySelectorAll('#listBuildings a').forEach(x=>x.classList.remove('active')); item.classList.add('active'); }
+  }
+};
+document.getElementById('q').addEventListener('keydown',e=>{
+  if(e.key==='Enter') document.getElementById('btnSearch').click();
+});
+
+// ====== Tiện ích mẫu (chưa có tọa độ thật, để center) ======
+document.getElementById('listUtil').onclick=e=>{
+  const a = e.target.closest('a[data-jump]'); if(!a) return; e.preventDefault();
+  map.setView(EAUT_CENTER,18);
+};
+</script>
+</body>
+</html>

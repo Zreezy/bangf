@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EAUT Campus – 2.5D (Hotspot)</title>
+
+  <link rel="stylesheet" href="./style.css">
+
+  <!-- Three.js viewer (for 3D preview of selected building) -->
+  <script src="https://unpkg.com/three@0.161.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.161.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">EAUT <span>Campus Map</span></div>
+    <div class="spacer"></div>
+    <input id="search" type="text" placeholder="Tìm tòa / #id…">
+    <button class="btn" id="resetBtn">Reset</button>
+  </div>
+
+  <div class="layout">
+    <!-- MAP + hotspots -->
+    <div id="mapWrap">
+     <!-- EAUT Utilities Launcher -->
+<button id="eautLauncher" aria-haspopup="true" aria-expanded="false" title="Tiện ích EAUT">
+  <img src="./pic/logo.jpg" alt="EAUT">
+</button>
+
+<nav id="eautMenu" class="eaut-menu hidden" aria-label="Tiện ích EAUT">
+  <a href="https://eaut.edu.vn" target="_blank" rel="noopener">Website EAUT</a>
+  <a href="https://elnda.eaut.edu.vn" target="_blank" rel="noopener">LMS / E-Learning</a>
+  <a href="http://sinhvien.eaut.edu.vn/Login.aspx" target="_blank" rel="noopener">Trang Sinh Viên </a>
+  <a href="https://thuvieneaut.edu.vn/opac/browsebycollection.aspx?mnuid=151" target="_blank" rel="noopener">Thư viện</a>
+  <a href="https://maps.google.com/?q=EAUT" target="_blank" rel="noopener">Google Maps (chỉ đường)</a>
+  <a href="https://www.facebook.com/dhcnDongA" target="_blank" rel="noopener">Fanpage</a>
+  <a href="./york-extension.html" target="_blank" rel="noopener">Bản đồ mở rộng (kiểu York)</a>
+</nav>
+
+      <!-- Hotspots & Roads sẽ render từ map.js -->
+    </div>
+
+    <!-- PANEL -->
+    <aside id="panel">
+      <div class="tools">
+        <button class="btn" id="editBtn">Edit mode</button>
+        <button class="btn" id="copyBtn">Copy JSON</button>
+        <span class="pill muted" id="hint">Kéo/resize khối; giữ Shift để resize</span>
+      </div>
+
+      <h3 id="bldgTitle">Chọn một tòa nhà</h3>
+      <div id="tags"></div>
+
+      <div id="viewerWrap">
+        <canvas id="viewer"></canvas>
+      </div>
+
+      <h4 style="margin:8px 0 4px">Tầng</h4>
+      <div id="floors" class="muted">Chưa chọn</div>
+	  <h4 style="margin:8px 0 4px">Phòng</h4>
+<div id="rooms" class="muted">Chưa chọn tầng</div>
+
+    </aside>
+  </div>
+
+  <!-- Data + render hotspots -->
+  <script src="./map.js"></script>
+  <!-- Interaction (viewer, edit, search, logger) -->
+  <script src="./main.js"></script>
+</body>
+</html>

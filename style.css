@@ -1,0 +1,128 @@
+:root{
+  --bg:#0b1220; --panel:#0e1627; --line:#1e293b; --ink:#e5eefc; --accent:#2563eb;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#0a1020;color:var(--ink);font:14px/1.4 system-ui,Segoe UI,Roboto}
+
+.topbar{height:52px;display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:1px solid var(--line);background:#0b1220;position:sticky;top:0;z-index:20}
+.brand{font-weight:700;letter-spacing:.5px}
+.brand span{opacity:.85;font-weight:600;color:#93c5fd}
+.spacer{flex:1}
+input[type="text"]{background:#0e1627;border:1px solid var(--line);border-radius:10px;padding:8px 10px;color:#dbeafe;min-width:260px}
+.btn{display:inline-block;background:var(--accent);color:white;padding:8px 12px;border-radius:10px;text-decoration:none;border:none;cursor:pointer}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+
+.layout{display:grid;grid-template-columns:1fr 380px;gap:14px;padding:14px;height:calc(100vh - 52px)}
+#mapWrap{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0b1220;min-height:300px}
+#mapWrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;z-index:0}
+
+/* Hotspot building rectangles */
+.b{position:absolute;background:#1f3e8a;opacity:.92;border:2px solid #0c1e5a;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1}
+.b:hover{outline:2px dashed #93c5fd}
+.b .id{font-weight:800;font-size:22px;color:#eaf2ff;text-shadow:0 1px 0 #0008}
+
+/* Roads */
+.road{position:absolute;background:#93c5fd33;border:2px dashed #93c5fd88;border-radius:6px;z-index:1}
+
+/* resize handle (only shown in edit mode) */
+.draggable.editing:after{
+  content:"";position:absolute;right:-6px;bottom:-6px;width:14px;height:14px;background:#60a5fa;border:2px solid #0b213f;border-radius:4px;cursor:nwse-resize
+}
+
+aside#panel{border:1px solid var(--line);border-radius:14px;padding:12px;background:#0b1220;display:flex;flex-direction:column;gap:10px}
+#viewerWrap{aspect-ratio:16/10;border:1px solid var(--line);border-radius:10px;overflow:hidden;position:relative;background:#0003}
+#viewer{width:100%;height:100%}
+#floors .row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:6px}
+.tag{display:inline-block;background:#0e1627;border:1px solid var(--line);padding:2px 8px;border-radius:20px;margin-right:6px;font-size:12px}
+.tools{display:flex;gap:8px;align-items:center}
+.tools .pill{background:#0e1627;border:1px solid var(--line);border-radius:999px;padding:6px 10px}
+.muted{opacity:.75}
+
+/* Pulse effect for search highlight */
+.b.pulse{ outline: 3px solid #60a5fa; animation: pulse .7s ease; }
+@keyframes pulse{ from{ outline-offset:0 } to{ outline-offset:4px } }
+
+/* Prevent grid children from collapsing height */
+.layout > *{ min-height: 0; }
+
+
+.redblock{
+  position:absolute;
+  background: rgba(220,38,38,0.85);
+  border:2px solid #7f1d1d;
+  border-radius:6px;
+  z-index:3;
+  pointer-events:auto; /* quan trọng: để nhận mousedown */
+}
+
+.greenblock{
+  position:absolute;
+  background: rgba(34,197,94,0.75); /* xanh lá trong suốt */
+  border:2px solid #166534;
+  border-radius:6px;
+  z-index:3;
+  pointer-events:auto;
+}
+
+/* label chung cho các khối */
+.label{
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  background: rgba(0,0,0,0.35);
+  text-align: center;
+  pointer-events: none; /* rất quan trọng để vẫn kéo/resize được khối */
+  user-select: none;
+  line-height: 1.15;
+  max-width: 95%;
+  white-space: normal;
+}
+
+/* có thể tuỳ biến màu nền theo loại khối */
+.redblock .label{ background: rgba(127, 29, 29, 0.65); }
+.greenblock .label{ background: rgba(22, 101, 52, 0.65); }
+.b .label{ background: rgba(12, 30, 90, 0.65); }
+
+#floors .row.active{
+  background: rgba(96,165,250,.08);
+  border-color: #3b82f6;
+}
+#rooms .row {
+  display:flex;
+  justify-content:space-between;
+  padding:4px 6px;
+  border-bottom:1px solid #ddd;
+}
+/* ===== EAUT utilities launcher on map ===== */
+#eautLauncher{
+  position:absolute; left:14px; top:14px; z-index:6;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:44px; height:44px; border:1px solid var(--line);
+  border-radius:10px; background:#0b1220cc; backdrop-filter:blur(6px);
+  cursor:pointer; padding:6px; transition:.15s;
+}
+#eautLauncher:hover{ transform:scale(1.05); background:#0b1220ee; }
+#eautLauncher:focus{ outline:2px solid #60a5fa; outline-offset:2px; }
+#eautLauncher img{ width:100%; height:100%; object-fit:contain; }
+
+/* dropdown menu */
+.eaut-menu{
+  position:absolute; left:14px; top:66px; z-index:6;
+  min-width:220px; background:#0b1220f2; border:1px solid var(--line);
+  border-radius:12px; box-shadow:0 10px 30px #0008; padding:8px;
+}
+.eaut-menu.hidden{ display:none; }
+.eaut-menu a{
+  display:block; padding:9px 10px; border-radius:8px;
+  color:var(--ink); text-decoration:none; font-weight:600;
+}
+.eaut-menu a:hover{ background:#1f2937cc; }
+#listBuildings a.active{
+  background:#2563eb33;
+  border:1px solid #2563eb;
+}
