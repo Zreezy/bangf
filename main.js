@@ -292,3 +292,36 @@ window.addEventListener('load', ()=>{
     a.addEventListener('click', ()=> close());
   });
 })();
+// ===== Mobile bottom-sheet toggle for #panel =====
+(function(){
+  const panel = document.getElementById('panel');
+  const toggle = document.getElementById('panelToggle');
+  if(!panel || !toggle) return;
+
+  const open  = ()=>{ panel.classList.add('open');  toggle.setAttribute('aria-expanded','true'); };
+  const close = ()=>{ panel.classList.remove('open');toggle.setAttribute('aria-expanded','false'); };
+
+  toggle.addEventListener('click', ()=>{
+    panel.classList.contains('open') ? close() : open();
+  });
+
+  // đóng khi chạm nền tối (nếu sau này bạn thêm backdrop) hoặc nhấn ESC
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+
+  // Khi người dùng click một tòa nhà → auto mở panel để xem chi tiết
+  const origShow = window.__showBuildingById;
+  if(typeof origShow === 'function'){
+    window.__showBuildingById = function(id){
+      origShow(id);
+      if (window.matchMedia('(max-width: 768px)').matches) open();
+    };
+  }
+})();
+// Tự đóng panel khi chuyển từ mobile → desktop
+(function(){
+  const mq = window.matchMedia('(max-width: 768px)');
+  const panel = document.getElementById('panel');
+  function sync(){ if (!mq.matches) panel.classList.remove('open'); }
+  mq.addEventListener('change', sync);
+  sync();
+})();
