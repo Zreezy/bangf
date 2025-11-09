@@ -225,3 +225,82 @@ aside#panel{border:1px solid var(--line);border-radius:14px;padding:12px;backgro
   pointer-events: none;
   transform: translate(-50%, -50%);
 }
+/* === Chatbox Gemini === */
+#chatWidget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+}
+
+#chatToggle {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 0 15px #0006;
+  transition: 0.25s;
+}
+
+#chatToggle:hover {
+  transform: scale(1.1);
+  background: #1d4ed8;
+}
+
+#chatBox {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 320px;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  background: #0e1627;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px #0009;
+  overflow: hidden;
+}
+
+#chatBox.hidden { display: none; }
+
+#chatMessages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.chat-msg {
+  background: #1f2937;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin: 6px 0;
+  max-width: 85%;
+}
+
+.chat-msg.user { background: #2563eb; align-self: flex-end; color: #fff; }
+.chat-msg.bot { background: #334155; color: #e5e7eb; }
+
+.chat-input {
+  display: flex;
+  border-top: 1px solid #1e293b;
+}
+.chat-input input {
+  flex: 1;
+  background: #0b1220;
+  border: none;
+  color: #e5eefc;
+  padding: 10px;
+}
+.chat-input button {
+  background: #2563eb;
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  cursor: pointer;
+}
