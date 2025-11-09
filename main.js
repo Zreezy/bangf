@@ -387,46 +387,62 @@ function botReply(userText){
   });
 }
 // === Chatbox Gemini ===
-const chatToggle = document.getElementById("chatToggle");
-const chatBox = document.getElementById("chatBox");
-const chatMessages = document.getElementById("chatMessages");
-const chatInput = document.getElementById("chatInput");
-const chatSend = document.getElementById("chatSend");
+(function(){
+  const chatToggle   = document.getElementById("chatToggle");
+  const chatBox      = document.getElementById("chatBox");
+  const chatMessages = document.getElementById("chatMessages");
+  const chatInput    = document.getElementById("chatInput");
+  const chatSend     = document.getElementById("chatSend");
 
-if (chatToggle && chatBox) {
+  if (!chatToggle || !chatBox) return;  // nếu chưa có HTML thì bỏ qua
+
   chatToggle.addEventListener("click", () => {
     chatBox.classList.toggle("hidden");
   });
 
   chatSend.addEventListener("click", sendMessage);
   chatInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") sendMessage();
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
   });
-}
 
-async function sendMessage() {
-  const msg = chatInput.value.trim();
-  if (!msg) return;
-  appendMsg("user", msg);
-  chatInput.value = "";
-
-  try {
-    const resp = await fetch("/api/gemini-chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg }),
-    });
-    const data = await resp.json();
-    appendMsg("bot", data.reply || "Không có phản hồi từ AI.");
-  } catch (err) {
-    appendMsg("bot", "⚠️ Lỗi kết nối đến máy chủ Gemini.");
+  function appendMsg(sender, text) {
+    const div = document.createElement("div");
+    div.className = "chat-msg " + sender;
+    div.textContent = text;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   }
-}
 
-function appendMsg(sender, text) {
-  const div = document.createElement("div");
-  div.className = "chat-msg " + sender;
-  div.textContent = text;
-  chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+  async function sendMessage() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+
+    appendMsg("user", msg);
+    chatInput.value = "";
+
+    // bubble "đang nghĩ..."
+    appendMsg("bot", "⏳ Gemini đang suy nghĩ...");
+
+    try {
+      const resp = await fetch("/api/gemini-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg }),
+      });
+      const data = await resp.json();
+
+      // thay bubble cuối cùng bằng câu trả lời thật
+      const last = chatMessages.querySelector(".chat-msg.bot:last-child");
+      if (last && last.textContent.startsWith("⏳")) last.remove();
+      appendMsg("bot", data.reply || "Gemini không trả lời được.");
+    } catch (err) {
+      const last = chatMessages.querySelector(".chat-msg.bot:last-child");
+      if (last && last.textContent.startsWith("⏳")) last.remove();
+      appendMsg("bot", "⚠️ Lỗi kết nối đến máy chủ Gemini.");
+    }
+  }
+})();
+
