@@ -72,17 +72,25 @@
   <script src="./map.js"></script>
   <!-- Interaction (viewer, edit, search, logger) -->
   <script src="./main.js"></script>
-  <!-- 🔹 Chatbox Gemini AI -->
-<div id="chatWidget">
-  <button id="chatToggle" title="Chat với AI">💬</button>
-  <div id="chatBox" class="hidden">
-    <div id="chatMessages"></div>
-    <div class="chat-input">
-      <input id="chatInput" type="text" placeholder="Nhập câu hỏi..." />
-      <button id="chatSend">Gửi</button>
+    <!-- 🔹 Chatbox Gemini AI -->
+  <div id="chatWidget">
+    <button id="chatToggle" title="Chat với AI">💬</button>
+    <div id="chatBox" class="hidden">
+      <div id="chatMessages"></div>
+      <div class="chat-input">
+        <input id="chatInput" type="text" placeholder="Nhập câu hỏi..." />
+        <button id="chatSend">Gửi</button>
+      </div>
     </div>
   </div>
-</div>
+
+  <!-- Data + render hotspots -->
+  <script src="./map.js"></script>
+  <!-- Interaction (viewer, edit, search, logger + chatbox) -->
+  <script src="./main.js"></script>
+</body>
+</html>
+
 
 </body>
 </html>
