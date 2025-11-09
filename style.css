@@ -190,3 +190,38 @@ aside#panel{border:1px solid var(--line);border-radius:14px;padding:12px;backgro
     align-items:center; justify-content:center;
   }
 }
+/* === Nút định vị GPS === */
+#locateBtn {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 6;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #0006;
+  transition: 0.2s;
+}
+#locateBtn:hover {
+  transform: scale(1.1);
+  background: #1d4ed8;
+}
+
+/* Chấm định vị */
+#userDot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #00ff80;
+  border: 2px solid #fff;
+  box-shadow: 0 0 8px #00ff8077;
+  z-index: 5;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}

@@ -325,3 +325,64 @@ window.addEventListener('load', ()=>{
   mq.addEventListener('change', sync);
   sync();
 })();
+// ====== Định vị người dùng (GPS) ======
+(function setupLocate(){
+  const btn = document.getElementById('locateBtn');
+  if(!btn) return;
+
+  btn.addEventListener('click', ()=>{
+    if(!navigator.geolocation){
+      alert('Trình duyệt không hỗ trợ định vị.');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const {latitude, longitude} = pos.coords;
+      console.log('Vị trí hiện tại:', latitude, longitude);
+
+      // Tạo hoặc di chuyển chấm định vị
+      let dot = document.getElementById('userDot');
+      if(!dot){
+        dot = document.createElement('div');
+        dot.id = 'userDot';
+        document.getElementById('mapWrap').appendChild(dot);
+      }
+
+      // ⚠️ TẠM THỜI: hiển thị ngẫu nhiên gần giữa (vì bản đồ 2D không có toạ độ thật)
+      // Nếu bạn có ảnh nền trùng bản đồ Google Maps → có thể quy đổi pixel chuẩn
+      const wrap = document.getElementById('mapWrap').getBoundingClientRect();
+      const x = wrap.width * 0.5;  // tạm lệch chút về phải
+      const y = wrap.height * 0.9; // lệch chút về dưới
+
+      dot.style.left = `${x}px`;
+      dot.style.top  = `${y}px`;
+
+      alert('Đã xác định vị trí tạm thời (mô phỏng trên bản đồ EAUT).');
+    }, ()=>{
+      alert('Không thể lấy vị trí. Hãy bật GPS hoặc cấp quyền cho trình duyệt.');
+    });
+  });
+})();
+function botReply(userText){
+  // Thêm 1 bubble "đang nghĩ..."
+  addMessage('⏳ Gemini đang suy nghĩ...', 'bot');
+
+  fetch('/api/gemini-chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: userText })
+  })
+  .then(res => res.json())
+  .then(data => {
+    // Xoá bubble "đang nghĩ..."
+    const last = msgBox.querySelector('.msg-bot:last-child');
+    if (last && last.textContent.startsWith('⏳')) {
+      last.remove();
+    }
+    addMessage(data.reply || 'Gemini không trả lời được.', 'bot');
+  })
+  .catch(err => {
+    console.error(err);
+    addMessage('⚠️ Lỗi kết nối đến Gemini API.', 'bot');
+  });
+}
